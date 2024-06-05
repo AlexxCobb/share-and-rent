@@ -13,7 +13,7 @@ public class ItemRequestDAO {
     private final Map<Long, ItemRequest> itemRequests;
     private Long generatedId = 1L;
 
-    public ItemRequest addItemRequest (ItemRequest itemRequest) {
+    public ItemRequest addItemRequest(ItemRequest itemRequest) {
         itemRequest.setId(generatedId);
         itemRequests.put(itemRequest.getId(), itemRequest);
         generatedId++;
