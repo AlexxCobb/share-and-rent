@@ -40,10 +40,11 @@ public class ItemDAO {
     }
 
     public List<Item> findItemToRent(String text) {
+        var textToLowerCase = text.toLowerCase();
         return items.values().stream()
-                .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase())
-                        || item.getDescription().toLowerCase().contains(text.toLowerCase())
-                        && item.getAvailable().equals(true))
+                .filter(item -> item.getName().toLowerCase().contains(textToLowerCase)
+                        || item.getDescription().toLowerCase().contains(textToLowerCase)
+                        && item.getAvailable())
                 .collect(Collectors.toList());
     }
 }

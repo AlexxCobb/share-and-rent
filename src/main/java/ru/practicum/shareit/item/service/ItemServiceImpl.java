@@ -49,7 +49,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(Long itemId) {
+    public ItemDto getItemById(Long userId, Long itemId) {
+        userService.getUserById(userId);
         var item = itemDAO.findItem(itemId).orElseThrow(
                 () -> {
                     log.error("Вещь с таким id: " + itemId + ", отсутствует.");
@@ -67,7 +68,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findItemToRent(String text) {
+    public List<ItemDto> findItemToRent(Long userId, String text) {
+        userService.getUserById(userId);
         if (text == null) {
             log.error("Параметр для поиска вещи пустой.");
             throw new BadRequestException("Параметр для поиска вещи пустой.");

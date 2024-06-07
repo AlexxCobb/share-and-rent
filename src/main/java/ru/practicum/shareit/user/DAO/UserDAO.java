@@ -20,11 +20,8 @@ public class UserDAO {
     private Long generatedId = 1L;
 
     public User addUser(User user) {
-        if (getAllUsers().contains(user)) {
-            log.error("Пользователь с таким Email: " + user.getEmail() + " уже существует");
-            throw new DuplicateEmailException("Пользователь с таким Email: " + user.getEmail() + " уже существует");
-        }
         user.setId(generatedId);
+        validateEmailExist(user.getId(), user.getEmail());
         users.put(user.getId(), user);
         generatedId++;
         return user;
@@ -53,6 +50,7 @@ public class UserDAO {
                 .filter(user -> !user.getId().equals(userId))
                 .anyMatch(user -> user.getEmail().equalsIgnoreCase(email));
         if (existEmail) {
+            log.error("Пользователь с таким Email: " + email + " уже существует");
             throw new DuplicateEmailException("Пользователь с таким Email: " + email + " уже существует");
         }
     }
