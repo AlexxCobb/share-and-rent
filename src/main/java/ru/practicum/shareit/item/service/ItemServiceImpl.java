@@ -125,7 +125,7 @@ public class ItemServiceImpl implements ItemService {
         }
         comment.setItem(item);
         var pastBookings = bookingService.getAllBookingsOfUser(userId, String.valueOf(State.PAST));
-        if(pastBookings.isEmpty()) {
+        if (pastBookings.isEmpty()) {
             throw new BadRequestException("Пользователь c userId" + userId + " не брал вещь в аренду c itemId " + itemId);
         }
         for (BookingResponseDto pastBooking : pastBookings) {

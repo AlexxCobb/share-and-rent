@@ -124,8 +124,8 @@ public class BookingServiceImpl implements BookingService {
         var validState = State.isStateValid(state);
         switch (validState) {
             case ALL:
-                var AllBookings = bookingRepository.findAllBookingsByItemOwnerId(userId);
-                return bookingMapper.toListBookingResponseDto(AllBookings);
+                var allBookings = bookingRepository.findAllBookingsByItemOwnerId(userId);
+                return bookingMapper.toListBookingResponseDto(allBookings);
             case CURRENT:
                 var currentBookings = bookingRepository.findAllCurrentBookingsByItemOwner(userId, LocalDateTime.now());
                 return bookingMapper.toListBookingResponseDto(currentBookings);

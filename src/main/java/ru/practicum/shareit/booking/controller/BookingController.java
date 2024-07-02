@@ -25,7 +25,7 @@ import java.util.List;
 @Slf4j
 public class BookingController {
 
-    private final static String HEADER = "X-Sharer-User-Id";
+    private final String HEADER = "X-Sharer-User-Id";
     private final ItemBookingValidationService itemBookingValidationService;
     private final BookingService bookingService;
 
