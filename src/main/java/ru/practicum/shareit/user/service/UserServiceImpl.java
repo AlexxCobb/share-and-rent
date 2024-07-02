@@ -1,10 +1,9 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.DAO.UserDAO;
+import ru.practicum.shareit.user.DAO.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.service.interfaces.UserService;
@@ -14,43 +13,37 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class UserServiceImpl implements UserService {
-    private final UserDAO userDAO;
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     public UserDto addUser(UserDto userDto) {
         var user = userMapper.toUser(userDto);
-        var createdUser = userDAO.addUser(user);
+        var createdUser = userRepository.save(user);
         userDto.setId(createdUser.getId());
         return userDto;
     }
 
     public UserDto updateUser(Long userId, UserDto userDto) {
-        var user = getUserById(userId);
-        userDto.setId(userId);
-        userDto.setEmail(userDto.getEmail() == null ? user.getEmail() : userDto.getEmail());
-        userDto.setName(userDto.getName() == null ? user.getName() : userDto.getName());
-
-        var updatedUser = userDAO.updateUser(userMapper.toUser(userDto));
-        return userMapper.toUserDto(updatedUser);
+        var user = userRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException("Пользователь с таким id: " + userId + ", отсутствует."));
+        userMapper.updateUserFromUserDto(userDto, user);
+        return userMapper.toUserDto(userRepository.save(user));
     }
 
     public void deleteUserById(Long userId) {
         getUserById(userId);
-        userDAO.deleteUser(userId);
+        userRepository.deleteById(userId);
     }
 
     public UserDto getUserById(Long userId) {
-        var user = userDAO.findUser(userId).orElseThrow(() -> {
-            log.error("Пользователь с таким id: " + userId + ", отсутствует.");
-            return new NotFoundException("Пользователь с таким id: " + userId + ", отсутствует.");
-        });
+        var user = userRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException("Пользователь с таким id: " + userId + ", отсутствует."));
         return userMapper.toUserDto(user);
     }
 
     public List<UserDto> getAllUsers() {
-        return userDAO.getAllUsers().stream()
+        return userRepository.findAll().stream()
                 .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
     }
