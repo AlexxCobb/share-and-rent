@@ -21,24 +21,21 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByBookerIdAndStatusOrderByStartDesc(Long id, Status status);
 
-    @Query("select b from Booking b where b.item.owner.id = ?1 order by b.start DESC")
-    List<Booking> findAllBookingsByItemOwnerId(Long id);
+    List<Booking> findAllBookingsByItemOwnerIdOrderByStartDesc(Long id);
 
-    @Query("select b from Booking b where b.item.owner.id = ?1 and b.start < ?2 and b.end > ?2 order by b.start DESC")
-    List<Booking> findAllCurrentBookingsByItemOwner(Long id, LocalDateTime time);
+    List<Booking> findAllBookingsByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(Long id, LocalDateTime start, LocalDateTime end);
 
-    @Query("select b from Booking b where b.item.owner.id = ?1 and b.end < ?2 order by b.start DESC")
-    List<Booking> findAllPastBookingsByItemOwner(Long id, LocalDateTime time);
+    List<Booking> findAllBookingsByItemOwnerIdAndEndBeforeOrderByStartDesc(Long id, LocalDateTime time);
 
-    @Query("select b from Booking b where b.item.owner.id = ?1 and b.start > ?2 order by b.start DESC")
-    List<Booking> findAllFutureBookingsByItemOwner(Long id, LocalDateTime time);
+    List<Booking> findAllBookingsByItemOwnerIdAndStartAfterOrderByStartDesc(Long id, LocalDateTime time);
 
-    @Query("select b from Booking b where b.item.owner.id = ?1 and b.status = ?2 order by b.start DESC")
-    List<Booking> findAllBookingsByItemOwnerAndStatus(Long id, Status status);
+    List<Booking> findAllBookingsByItemOwnerIdAndStatusOrderByStartDesc(Long id, Status status);
 
-    @Query("select b from Booking b where b.item.id = ?1 and ( b.end < ?2 or b.start < ?2) and b.status <> ?3 order by b.end DESC")
+    @Query("select b from Booking b where b.item.id = :itemId and ( b.end < :time or b.start < :time) and b.status <> :status order by b.end DESC")
     List<Booking> findLastBookingByItemId(Long itemId, LocalDateTime time, Status status, Pageable pageable);
 
-    @Query("select b from Booking b where b.item.id = ?1 and b.start > ?2 and b.status <> ?3 order by b.start ASC")
+    @Query("select b from Booking b where b.item.id = :itemId and b.start > :time and b.status <> :status order by b.start ASC")
     List<Booking> findFutureBookingByItemId(Long itemId, LocalDateTime time, Status status, Pageable pageable);
+
+    List<Booking> findAllBookingsByItemIdInAndStatusNotOrderByStartDesc(List<Long> ids, Status status);
 }

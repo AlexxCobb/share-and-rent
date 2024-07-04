@@ -37,7 +37,7 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public BookingResponseDto bookingStatusManagement(@PathVariable Long bookingId, @RequestHeader(Constant.HEADER_USER_ID) Long userId, @RequestParam Boolean approved) {
-        log.info("Поступил PATCH-запрос на управление бронированием c Id - " + bookingId + " от userId - " + userId);
+        log.info("Поступил PATCH-запрос на управление бронированием c id = {} от user c id = {}", bookingId, userId);
         return bookingService.managingBookingStatus(bookingId, userId, approved);
     }
 
@@ -48,13 +48,13 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingResponseDto> getAllBookingsOfUser(@RequestHeader(Constant.HEADER_USER_ID) Long userId, @RequestParam(defaultValue = "ALL", required = false) String state) {
+    public List<BookingResponseDto> getAllBookingsOfUser(@RequestHeader(Constant.HEADER_USER_ID) Long userId, @RequestParam(defaultValue = "ALL") String state) {
         log.info("Поступил GET-запрос на получение списка всех бронирований всех вещей user с id = {}", userId);
         return bookingService.getAllBookingsOfUser(userId, state);
     }
 
     @GetMapping("/owner")
-    public List<BookingResponseDto> getBookingsOfAllUserItems(@RequestHeader(Constant.HEADER_USER_ID) Long userId, @RequestParam(defaultValue = "ALL", required = false) String state) {
+    public List<BookingResponseDto> getBookingsOfAllUserItems(@RequestHeader(Constant.HEADER_USER_ID) Long userId, @RequestParam(defaultValue = "ALL") String state) {
         log.info("Поступил GET-запрос на получение списка бронирований всех вещей user с id = {}", userId);
         itemBookingValidationService.isUserHaveItems(userId);
         return bookingService.getAllBookingsOfAllUserItems(userId, state);

@@ -12,6 +12,7 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.dto.ShortBookingItemDto;
 import ru.practicum.shareit.booking.enums.State;
 import ru.practicum.shareit.booking.enums.Status;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.interfaces.BookingService;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -21,7 +22,9 @@ import ru.practicum.shareit.user.service.interfaces.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -48,7 +51,8 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("Указано неправильное время начала и конца бронирования");
         }
         if (booking.getItem().getOwner().getId().equals(userId)) {
-            throw new NotFoundException("Владелец не может бронировать собственную вещь");
+            throw new NotFoundException("Владелец не может бронировать собственную вещь, userId = "
+                    + userId + " itemId = " + item.getId());
         }
         booking.setStatus(Status.WAITING);
         var createdBooking = bookingRepository.save(booking);
@@ -124,22 +128,22 @@ public class BookingServiceImpl implements BookingService {
         var validState = State.isStateValid(state);
         switch (validState) {
             case ALL:
-                var allBookings = bookingRepository.findAllBookingsByItemOwnerId(userId);
+                var allBookings = bookingRepository.findAllBookingsByItemOwnerIdOrderByStartDesc(userId);
                 return bookingMapper.toListBookingResponseDto(allBookings);
             case CURRENT:
-                var currentBookings = bookingRepository.findAllCurrentBookingsByItemOwner(userId, LocalDateTime.now());
+                var currentBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now());
                 return bookingMapper.toListBookingResponseDto(currentBookings);
             case PAST:
-                var pastBookings = bookingRepository.findAllPastBookingsByItemOwner(userId, LocalDateTime.now());
+                var pastBookings = bookingRepository.findAllBookingsByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
                 return bookingMapper.toListBookingResponseDto(pastBookings);
             case FUTURE:
-                var futureBookings = bookingRepository.findAllFutureBookingsByItemOwner(userId, LocalDateTime.now());
+                var futureBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
                 return bookingMapper.toListBookingResponseDto(futureBookings);
             case WAITING:
-                var waitingBookings = bookingRepository.findAllBookingsByItemOwnerAndStatus(userId, Status.WAITING);
+                var waitingBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.WAITING);
                 return bookingMapper.toListBookingResponseDto(waitingBookings);
             case REJECTED:
-                var rejectedBookings = bookingRepository.findAllBookingsByItemOwnerAndStatus(userId, Status.REJECTED);
+                var rejectedBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.REJECTED);
                 return bookingMapper.toListBookingResponseDto(rejectedBookings);
             default:
                 throw new BadRequestException(String.format("Unknown state: %s", state));
@@ -158,5 +162,12 @@ public class BookingServiceImpl implements BookingService {
         var bookings = bookingRepository.findFutureBookingByItemId(itemId, LocalDateTime.now(), Status.REJECTED, Pageable.ofSize(1));
         var shortBookings = bookingMapper.toListShortBooking(bookings);
         return shortBookings.stream().findFirst();
+    }
+
+    @Override
+    public Map<Item, List<Booking>> findAllBookingsByItemIds(List<Long> itemIds) {
+        var bookingsFromDb = bookingRepository.findAllBookingsByItemIdInAndStatusNotOrderByStartDesc(itemIds, Status.REJECTED);
+        return bookingsFromDb.stream()
+                .collect(Collectors.groupingBy(Booking::getItem));
     }
 }

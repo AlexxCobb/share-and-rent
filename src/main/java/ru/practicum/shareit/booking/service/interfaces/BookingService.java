@@ -3,9 +3,11 @@ package ru.practicum.shareit.booking.service.interfaces;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.dto.ShortBookingItemDto;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface BookingService {
@@ -23,4 +25,6 @@ public interface BookingService {
     Optional<ShortBookingItemDto> findLastBookingByItemId(Long itemId);
 
     Optional<ShortBookingItemDto> findFutureBookingByItemId(Long itemId);
+
+    Map<Item, List<Booking>> findAllBookingsByItemIds(List<Long> itemIds);
 }

@@ -28,7 +28,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto createItem(@Valid @RequestBody ItemDto itemDto, @RequestHeader(Constant.HEADER_USER_ID) Long userId) {
-        log.info("Поступил POST-запрос на добавление item от userId - " + userId);
+        log.info("Поступил POST-запрос на добавление item от user c id = {}", userId);
         return itemService.createItem(itemDto, userId);
     }
 
@@ -58,8 +58,7 @@ public class ItemController {
 
     @PostMapping("{itemId}/comment")
     public CommentDto createComment(@Valid @RequestBody CommentDto commentDto, @PathVariable Long itemId, @RequestHeader(Constant.HEADER_USER_ID) Long userId) {
-        log.info("Поступил POST-запрос на добавление комментария вещи c itemId - " + itemId +
-                "пользователем с userId - " + userId);
+        log.info("Поступил POST-запрос на добавление комментария вещи item c id = {}, пользователем user c id = {}", itemId, userId);
         return itemService.createComment(commentDto, itemId, userId);
     }
 }

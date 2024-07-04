@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.comment.model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -35,10 +36,11 @@ public class Comment {
     private Item item;
 
     @ToString.Exclude
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     private User author;
 
+    @CreationTimestamp
     @Column(name = "created_date")
     private LocalDateTime created;
 }
