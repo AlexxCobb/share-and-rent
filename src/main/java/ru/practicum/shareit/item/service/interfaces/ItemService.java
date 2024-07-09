@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service.interfaces;
 
+import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;
@@ -13,5 +14,7 @@ public interface ItemService {
 
     List<ItemDto> getUserItems(Long userId);
 
-    List<ItemDto> findItemToRent(Long userId, String text);
+    List<ItemDto> searchItemToRent(Long userId, String text);
+
+    CommentDto createComment(CommentDto commentDto, Long itemId, Long userId);
 }
