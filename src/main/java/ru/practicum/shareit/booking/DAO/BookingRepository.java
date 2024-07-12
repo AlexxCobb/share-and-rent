@@ -11,25 +11,25 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> findAllBookingsByBookerIdOrderByStartDesc(Long id);
+    List<Booking> findAllBookingsByBookerIdOrderByStartDesc(Long id, Pageable pageable);
 
-    List<Booking> findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(Long id, LocalDateTime start, LocalDateTime end);
+    List<Booking> findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(Long id, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
-    List<Booking> findByBookerIdAndEndBeforeOrderByStartDesc(Long id, LocalDateTime time);
+    List<Booking> findByBookerIdAndEndBeforeOrderByStartDesc(Long id, LocalDateTime time, Pageable pageable);
 
-    List<Booking> findByBookerIdAndStartAfterOrderByStartDesc(Long id, LocalDateTime time);
+    List<Booking> findByBookerIdAndStartAfterOrderByStartDesc(Long id, LocalDateTime time, Pageable pageable);
 
-    List<Booking> findByBookerIdAndStatusOrderByStartDesc(Long id, Status status);
+    List<Booking> findByBookerIdAndStatusOrderByStartDesc(Long id, Status status, Pageable pageable);
 
-    List<Booking> findAllBookingsByItemOwnerIdOrderByStartDesc(Long id);
+    List<Booking> findAllBookingsByItemOwnerIdOrderByStartDesc(Long id, Pageable pageable);
 
-    List<Booking> findAllBookingsByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(Long id, LocalDateTime start, LocalDateTime end);
+    List<Booking> findAllBookingsByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(Long id, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
-    List<Booking> findAllBookingsByItemOwnerIdAndEndBeforeOrderByStartDesc(Long id, LocalDateTime time);
+    List<Booking> findAllBookingsByItemOwnerIdAndEndBeforeOrderByStartDesc(Long id, LocalDateTime time, Pageable pageable);
 
-    List<Booking> findAllBookingsByItemOwnerIdAndStartAfterOrderByStartDesc(Long id, LocalDateTime time);
+    List<Booking> findAllBookingsByItemOwnerIdAndStartAfterOrderByStartDesc(Long id, LocalDateTime time, Pageable pageable);
 
-    List<Booking> findAllBookingsByItemOwnerIdAndStatusOrderByStartDesc(Long id, Status status);
+    List<Booking> findAllBookingsByItemOwnerIdAndStatusOrderByStartDesc(Long id, Status status, Pageable pageable);
 
     @Query("select b from Booking b where b.item.id = :itemId and ( b.end < :time or b.start < :time) and b.status <> :status order by b.end DESC")
     List<Booking> findLastBookingByItemId(Long itemId, LocalDateTime time, Status status, Pageable pageable);

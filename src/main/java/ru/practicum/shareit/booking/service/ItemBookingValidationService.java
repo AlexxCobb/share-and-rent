@@ -7,17 +7,19 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.DAO.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.interfaces.ItemService;
+import ru.practicum.shareit.user.service.interfaces.UserService;
 
 @Service
 @RequiredArgsConstructor
 public class ItemBookingValidationService {
 
+    private final UserService userService;
     private final ItemService itemService;
     private final ItemRepository itemRepository;
 
     public void isUserHaveItems(Long userId) {
-        var userItems = itemService.getUserItems(userId);
-        if (userItems.isEmpty()) {
+        userService.getUserById(userId);
+        if (!itemService.isUserHaveItems(userId)) {
             throw new BadRequestException("У данного пользователя нет вещей, userId - " + userId);
         }
     }

@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,12 +18,14 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.interfaces.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/items")
 @Slf4j
+@Validated
 public class ItemController {
     private final ItemService itemService;
 
@@ -45,15 +48,20 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getUserItems(@RequestHeader(Constant.HEADER_USER_ID) Long userId) {
+    public List<ItemDto> getUserItems(@RequestHeader(Constant.HEADER_USER_ID) Long userId,
+                                      @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                      @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         log.info("Поступил GET-запрос на получение всех user items c userId = {}", userId);
-        return itemService.getUserItems(userId);
+        return itemService.getUserItems(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> findItemToRent(@RequestHeader(Constant.HEADER_USER_ID) Long userId, @RequestParam(required = false) String text) {
+    public List<ItemDto> findItemToRent(@RequestHeader(Constant.HEADER_USER_ID) Long userId,
+                                        @RequestParam(required = false) String text,
+                                        @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                        @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         log.info("Поступил GET-запрос от user c id = {} на поиск item", userId);
-        return itemService.searchItemToRent(userId, text);
+        return itemService.searchItemToRent(userId, text, from, size);
     }
 
     @PostMapping("{itemId}/comment")

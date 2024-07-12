@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingMapper;
@@ -20,6 +21,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.interfaces.ItemService;
+import ru.practicum.shareit.request.dto.ItemRequestMapper;
+import ru.practicum.shareit.request.service.interfaces.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.service.interfaces.UserService;
 
@@ -43,8 +46,10 @@ public class ItemServiceImpl implements ItemService {
     private final UserMapper userMapper;
     private final CommentMapper commentMapper;
     private final BookingMapper bookingMapper;
+    private final ItemRequestMapper itemRequestMapper;
     private final UserService userService;
     private final BookingService bookingService;
+    private final ItemRequestService itemRequestService;
 
     @Override
     @Transactional
@@ -52,6 +57,11 @@ public class ItemServiceImpl implements ItemService {
         var userDto = userService.getUserById(userId);
         var user = userMapper.toUser(userDto);
         var item = itemMapper.toItem(itemDto);
+        if (itemDto.getRequestId() != null) {
+            var itemRequestDto = itemRequestService.getRequestById(userId, itemDto.getRequestId());
+            var itemRequest = itemRequestMapper.toItemRequest(itemRequestDto);
+            item.setItemRequest(itemRequest);
+        }
         item.setOwner(user);
         return itemMapper.toItemDto(itemRepository.save(item));
     }
@@ -87,9 +97,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getUserItems(Long userId) {
+    public List<ItemDto> getUserItems(Long userId, Integer from, Integer size) {
         userService.getUserById(userId);
-        var allItemsDto = itemRepository.findAllByOwnerIdOrderById(userId).stream()
+        var allItemsDto = itemRepository.findAllByOwnerIdOrderById(userId, PageRequest.of(from / size, size))
+                .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
         var itemIds = allItemsDto.stream().map(ItemDto::getId).collect(Collectors.toList());
@@ -125,7 +136,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItemToRent(Long userId, String text) {
+    public List<ItemDto> searchItemToRent(Long userId, String text, Integer from, Integer size) {
         userService.getUserById(userId);
         if (text == null) {
             throw new BadRequestException("Параметр для поиска вещи пустой.");
@@ -133,7 +144,7 @@ public class ItemServiceImpl implements ItemService {
         if (text.isBlank()) {
             return Collections.emptyList();
         }
-        return itemRepository.searchItemToRent(text).stream()
+        return itemRepository.searchItemToRent(text, PageRequest.of(from / size, size)).stream()
                 .filter(Item::getAvailable)
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -151,7 +162,7 @@ public class ItemServiceImpl implements ItemService {
             throw new BadRequestException("Данный пользователь " + userId + " является владельцем вещи с id: " + itemId);
         }
         comment.setItem(item);
-        var pastBookings = bookingService.getAllBookingsOfUser(userId, String.valueOf(State.PAST));
+        var pastBookings = bookingService.getAllBookingsOfUser(userId, String.valueOf(State.PAST), 0, 999);
         if (pastBookings.isEmpty()) {
             throw new BadRequestException("Пользователь c userId" + userId + " не брал вещь в аренду c itemId " + itemId);
         }
@@ -164,5 +175,10 @@ public class ItemServiceImpl implements ItemService {
             }
         }
         return commentMapper.toCommentDto(comment);
+    }
+
+    @Override
+    public Boolean isUserHaveItems(Long userId) {
+       return itemRepository.existsByOwnerId(userId);
     }
 }

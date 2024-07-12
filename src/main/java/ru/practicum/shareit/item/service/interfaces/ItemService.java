@@ -12,9 +12,11 @@ public interface ItemService {
 
     ItemDto getItemById(Long userId, Long itemId);
 
-    List<ItemDto> getUserItems(Long userId);
+    List<ItemDto> getUserItems(Long userId, Integer from, Integer size);
 
-    List<ItemDto> searchItemToRent(Long userId, String text);
+    List<ItemDto> searchItemToRent(Long userId, String text, Integer from, Integer size);
 
     CommentDto createComment(CommentDto commentDto, Long itemId, Long userId);
+
+    Boolean isUserHaveItems(Long userId);
 }
