@@ -1,20 +1,18 @@
 package ru.practicum.shareit.booking.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.DAO.ItemRepository;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.interfaces.ItemService;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.interfaces.UserService;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,6 +24,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ItemBookingValidationServiceTest {
 
+    @InjectMocks
     private ItemBookingValidationService service;
 
     @Mock
@@ -37,10 +36,6 @@ class ItemBookingValidationServiceTest {
     @Mock
     private UserService userService;
 
-    @BeforeEach
-    void setUp() {
-        service = new ItemBookingValidationService(userService, itemService, itemRepository);
-    }
 
     @Test
     void isUserHaveItemsWithException() {
@@ -49,16 +44,15 @@ class ItemBookingValidationServiceTest {
 
     @Test
     void isUserHaveItems() {
-        var user1 = new User();
-        user1.setId(1L);
-        var items = List.of(new ItemDto(), new ItemDto());
-        when(itemService.getUserItems(any(), any(), any())).thenReturn(items);
+        var user = new UserDto();
+        when(userService.getUserById(any())).thenReturn(user);
+        when(itemService.isUserHaveItems(any())).thenReturn(true);
         service.isUserHaveItems(any());
-        verify(itemService).getUserItems(any(), any(), any());
+        verify(itemService).isUserHaveItems(any());
     }
 
     @Test
-    void isItemAvailableWithException400() {
+    void isItemAvailableWithBadRequestException() {
         var item = new Item();
         item.setId(1L);
         item.setAvailable(false);
@@ -67,7 +61,7 @@ class ItemBookingValidationServiceTest {
     }
 
     @Test
-    void isItemAvailableWithException404() {
+    void isItemAvailableWithNotFoundException() {
         assertThrows(NotFoundException.class, () -> service.isItemAvailable(any()));
     }
 

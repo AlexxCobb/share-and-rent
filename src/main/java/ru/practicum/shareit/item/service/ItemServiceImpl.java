@@ -27,6 +27,7 @@ import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.service.interfaces.UserService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -103,6 +104,9 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
+        if (allItemsDto.size() == 0) {
+            return new ArrayList<>();
+        }
         var itemIds = allItemsDto.stream().map(ItemDto::getId).collect(Collectors.toList());
         var bookingsMap = bookingService.findAllBookingsByItemIds(itemIds);
         var comments = commentRepository.findAllCommentsByItemIdInOrderByCreatedDesc(itemIds);
@@ -164,14 +168,14 @@ public class ItemServiceImpl implements ItemService {
         comment.setItem(item);
         var pastBookings = bookingService.getAllBookingsOfUser(userId, String.valueOf(State.PAST), 0, 999);
         if (pastBookings.isEmpty()) {
-            throw new BadRequestException("Пользователь c userId" + userId + " не брал вещь в аренду c itemId " + itemId);
+            throw new BadRequestException("Пользователь c userId - " + userId + " не брал вещь в аренду c itemId -  " + itemId);
         }
         for (BookingResponseDto pastBooking : pastBookings) {
             if (pastBooking.getItem().getId().equals(itemId) && pastBooking.getBooker().getId().equals(userId) && pastBooking.getStatus().equals(Status.APPROVED)) {
                 comment.setAuthor(user);
                 commentRepository.save(comment);
             } else {
-                throw new BadRequestException("Пользователь c userId" + userId + " не брал вещь в аренду c itemId " + itemId);
+                throw new BadRequestException("Пользователь c userId - " + userId + " не брал вещь в аренду c itemId - " + itemId);
             }
         }
         return commentMapper.toCommentDto(comment);
@@ -179,6 +183,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Boolean isUserHaveItems(Long userId) {
-       return itemRepository.existsByOwnerId(userId);
+        return itemRepository.existsByOwnerId(userId);
     }
 }

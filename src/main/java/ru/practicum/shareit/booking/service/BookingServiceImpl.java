@@ -119,7 +119,7 @@ public class BookingServiceImpl implements BookingService {
                 var rejectedBookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED, page);
                 return bookingMapper.toListBookingResponseDto(rejectedBookings);
             default:
-                throw new BadRequestException(String.format("Unknown state: %s", state));
+                throw new BadRequestException(String.format("Unknown state: %s", state)); // &&&&??????
         }
     }
 

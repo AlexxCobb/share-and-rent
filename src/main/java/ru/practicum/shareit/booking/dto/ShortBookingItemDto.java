@@ -8,7 +8,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class ShortBookingItemDto {
-   private Long id;
-   private Long bookerId;
+    private Long id;
+    private Long bookerId;
 }
 
