@@ -3,7 +3,7 @@ package ru.practicum.shareit.booking.service;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.booking.DAO.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.enums.Status;
@@ -12,6 +12,7 @@ import ru.practicum.shareit.item.DAO.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.dto.UserMapperImpl;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.interfaces.UserService;
 
@@ -20,10 +21,8 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-@Transactional
-@SpringBootTest(
-        properties = "db.name=test",
-        webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BookingServiceImplIntegrationTest {
 
     @Autowired
@@ -34,8 +33,8 @@ public class BookingServiceImplIntegrationTest {
     private BookingRepository bookingRepository;
     @Autowired
     private ItemRepository itemRepository;
-    @Autowired
-    private UserMapper userMapper;
+
+    private final UserMapper userMapper = new UserMapperImpl();
 
     @Test
     void createBookingByUser() {

@@ -3,18 +3,18 @@ package ru.practicum.shareit.item.service;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.booking.DAO.BookingRepository;
 import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.DAO.ItemRepository;
 import ru.practicum.shareit.item.comment.DAO.CommentRepository;
 import ru.practicum.shareit.item.comment.model.Comment;
-import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.interfaces.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.dto.UserMapperImpl;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.interfaces.UserService;
 
@@ -22,14 +22,15 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Transactional
-@SpringBootTest(
-        properties = "db.name=test",
-        webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ItemServiceImplIntegrationTest {
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private ItemRepository itemRepository;
@@ -40,14 +41,7 @@ public class ItemServiceImplIntegrationTest {
     @Autowired
     private BookingRepository bookingRepository;
 
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private ItemMapper itemMapper;
-
-    @Autowired
-    private UserService userService;
+    private final UserMapper userMapper = new UserMapperImpl();
 
     @Test
     void getUserItems() {
