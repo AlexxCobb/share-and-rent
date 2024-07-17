@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.service;
+package ru.practicum.shareit.booking.service.item.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +22,7 @@ import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemMapperImpl;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.dto.ItemRequestMapperImpl;
@@ -289,12 +290,16 @@ class ItemServiceImplTest {
         var owner = createUser(1L);
         var user = createUser(2L);
         var item = createItem(owner);
+        var item2 = createItem(owner);
         var comment = createComment(user, item);
+        var comment2 = createComment(user, item2);
+        var commentList = List.of(comment,comment2);
+        commentMapper.toListCommentsDto(commentList);
 
         when(userService.getUserById(eq(owner.getId()))).thenReturn(new UserDto());
         when(itemRepository.findAllByOwnerIdOrderById(eq(owner.getId()), any(Pageable.class))).thenReturn(List.of(item));
         when(bookingService.findAllBookingsByItemIds(List.of(item.getId()))).thenReturn(new HashMap<>());
-        when(commentRepository.findAllCommentsByItemIdInOrderByCreatedDesc(List.of(item.getId()))).thenReturn(List.of(comment));
+        when(commentRepository.findAllCommentsByItemIdInOrderByCreatedDesc(List.of(item.getId()))).thenReturn(commentList);
         var result = itemService.getUserItems(owner.getId(), 0, 10);
 
         assertEquals(comment.getId(), result.get(0).getComments().get(0).getId());
@@ -324,7 +329,7 @@ class ItemServiceImplTest {
     void searchItemToRent_whenTextIsValid_thenReturnCorrectItemDto() {
         var user = createUser(1L);
         var item = createItem(user);
-        var itemDto = itemMapper.toItemDto(item);
+        var itemDto = itemRequestMapper.toItemDto(item);
 
         when(userService.getUserById(anyLong())).thenReturn(new UserDto());
         when(itemRepository.searchItemToRent(anyString(), any(Pageable.class))).thenReturn(List.of(item));

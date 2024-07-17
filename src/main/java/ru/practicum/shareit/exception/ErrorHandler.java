@@ -18,13 +18,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public final ErrorResponse handleValidateException(DuplicateEmailException e) {
-        log.error("Получен статус 409 Bad Request {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public final ErrorResponse handleInvalidParamExc(final BadRequestException e) {
         log.error("Получен статус 400 Bad Request {}", e.getMessage(), e);

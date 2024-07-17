@@ -90,7 +90,6 @@ public class BookingControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(containsString("Validation failed for argument [0] in public ru.practicum.shareit.booking.dto.BookingResponseDto")));
-
     }
 
     @Test
