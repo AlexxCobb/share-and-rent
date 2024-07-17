@@ -118,9 +118,8 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED:
                 var rejectedBookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED, page);
                 return bookingMapper.toListBookingResponseDto(rejectedBookings);
-            default:
-                throw new BadRequestException(String.format("Unknown state: %s", state)); // &&&&??????
         }
+        return null;
     }
 
     @Override
@@ -146,9 +145,8 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED:
                 var rejectedBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.REJECTED, page);
                 return bookingMapper.toListBookingResponseDto(rejectedBookings);
-            default:
-                throw new BadRequestException(String.format("Unknown state: %s", state));
         }
+        return null;
     }
 
     @Override
