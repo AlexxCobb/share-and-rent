@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ItemRequestServiceImpl implements ItemRequestService {
 
+
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRequestMapper itemRequestMapper;
     private final UserMapper userMapper;
