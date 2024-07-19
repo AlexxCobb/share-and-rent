@@ -7,6 +7,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.ItemMapperImpl;
+import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.request.DAO.ItemRequestRepository;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.dto.ItemRequestMapperImpl;
@@ -40,14 +43,18 @@ class ItemRequestServiceImplTest {
     private ItemRequestRepository itemRequestRepository;
 
     @Mock
+    private ItemServiceImpl itemService;
+
+    @Mock
     private UserService userService;
 
     private final ItemRequestMapper itemRequestMapper = new ItemRequestMapperImpl();
     private final UserMapper userMapper = new UserMapperImpl();
+    private final ItemMapper itemMapper = new ItemMapperImpl();
 
     @BeforeEach
     void setUp() {
-        itemRequestService = new ItemRequestServiceImpl(itemRequestRepository, itemRequestMapper, userMapper, userService);
+        itemRequestService = new ItemRequestServiceImpl(itemRequestRepository, itemRequestMapper, userMapper, itemMapper, userService, itemService);
     }
 
     @Test

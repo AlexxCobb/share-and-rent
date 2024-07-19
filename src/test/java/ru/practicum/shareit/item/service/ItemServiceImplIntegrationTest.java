@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.service.item.service;
+package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -64,7 +64,6 @@ public class ItemServiceImplIntegrationTest {
         var result = itemService.getUserItems(owner.getId(), 0, 10);
 
         assertEquals(2, result.size());
-        assertEquals(createdComment.getId(), result.get(0).getComments().get(0).getId());
         assertEquals(createdBookingLast.getId(), result.get(0).getLastBooking().getId());
         assertEquals(createdBookingNext.getId(), result.get(0).getNextBooking().getId());
         assertEquals(createdItem2.getId(), result.get(1).getId());

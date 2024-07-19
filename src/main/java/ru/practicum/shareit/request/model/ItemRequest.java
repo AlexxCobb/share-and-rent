@@ -17,8 +17,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -44,7 +44,8 @@ public class ItemRequest {
     @Column(name = "created_date")
     private LocalDateTime created;
 
-    @ToString.Exclude
-    @OneToMany(mappedBy = "itemRequest", fetch = FetchType.LAZY)
+    //    @ToString.Exclude
+//    @OneToMany(mappedBy = "itemRequest", fetch = FetchType.LAZY)
+    @Transient
     private List<Item> items;
 }

@@ -8,6 +8,8 @@ import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
 
@@ -15,6 +17,8 @@ public interface ItemMapper {
     ItemDto toItemDto(Item item);
 
     Item toItem(ItemDto itemDto);
+
+    List<ItemDto> toListItemDto(List<Item> items);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
             nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)

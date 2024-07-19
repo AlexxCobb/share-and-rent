@@ -18,7 +18,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.interfaces.ItemService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -49,8 +50,8 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getUserItems(@RequestHeader(Constant.HEADER_USER_ID) Long userId,
-                                      @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                      @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+                                      @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                      @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("Поступил GET-запрос на получение всех user items c userId = {}", userId);
         return itemService.getUserItems(userId, from, size);
     }
@@ -58,8 +59,8 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> findItemToRent(@RequestHeader(Constant.HEADER_USER_ID) Long userId,
                                         @RequestParam(required = false) String text,
-                                        @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                        @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+                                        @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                        @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("Поступил GET-запрос от user c id = {} на поиск item", userId);
         return itemService.searchItemToRent(userId, text, from, size);
     }

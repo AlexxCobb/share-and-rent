@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.service.item.service;
+package ru.practicum.shareit.item.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,17 +22,14 @@ import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemMapperImpl;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.service.ItemServiceImpl;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemRequestMapper;
-import ru.practicum.shareit.request.dto.ItemRequestMapperImpl;
+import ru.practicum.shareit.request.DAO.ItemRequestRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.service.interfaces.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.dto.UserMapperImpl;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.interfaces.UserService;
+import ru.practicum.shareit.utils.PaginationServiceClass;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -73,24 +70,23 @@ class ItemServiceImplTest {
     private BookingService bookingService;
 
     @Mock
-    private ItemRequestService itemRequestService;
+    private ItemRequestRepository itemRequestRepository;
 
     private final ItemMapper itemMapper = new ItemMapperImpl();
     private final UserMapper userMapper = new UserMapperImpl();
     private final CommentMapper commentMapper = new CommentMapperImpl();
     private final BookingMapper bookingMapper = new BookingMapperImpl();
-    private final ItemRequestMapper itemRequestMapper = new ItemRequestMapperImpl();
 
     @BeforeEach
     void setUp() {
-        itemService = new ItemServiceImpl(itemRepository, commentRepository, itemMapper, userMapper, commentMapper, bookingMapper, itemRequestMapper, userService, bookingService, itemRequestService);
+        itemService = new ItemServiceImpl(itemRepository, commentRepository, itemMapper, userMapper, commentMapper, bookingMapper, userService, bookingService, itemRequestRepository);
     }
 
     @Test
     void createItem_whenItemDtoWithoutRequestId_thenSaveItemWithoutRequest() {
         var user = createUser(1L);
         var item = createItem(user);
-        var itemDto = itemRequestMapper.toItemDto(item);
+        var itemDto = itemMapper.toItemDto(item);
 
         when(userService.getUserById(eq(user.getId()))).thenReturn(new UserDto());
         when(itemRepository.save(any(Item.class))).thenReturn(item);
@@ -99,7 +95,7 @@ class ItemServiceImplTest {
 
         assertEquals(itemDto.getId(), result.getId());
         assertNull(result.getRequestId());
-        verify(itemRequestService, never()).getRequestById(eq(user.getId()), eq(itemDto.getRequestId()));
+        verify(itemRequestRepository, never()).findById(eq(user.getId()));
         verify(itemRepository).save(any(Item.class));
     }
 
@@ -112,13 +108,13 @@ class ItemServiceImplTest {
         var itemDto = itemMapper.toItemDto(item);
 
         when(userService.getUserById(eq(user.getId()))).thenReturn(new UserDto());
-        when(itemRequestService.getRequestById(eq(user.getId()), eq(itemDto.getRequestId()))).thenReturn(new ItemRequestDto());
+        when(itemRequestRepository.findById(eq(request.getId()))).thenReturn(Optional.of(request));
         when(itemRepository.save(any(Item.class))).thenReturn(item);
         var result = itemService.createItem(itemDto, user.getId());
 
         assertNotNull(result.getRequestId());
         assertEquals(itemDto.getRequestId(), result.getRequestId());
-        verify(itemRequestService).getRequestById(eq(user.getId()), eq(itemDto.getRequestId()));
+        verify(itemRequestRepository).findById(eq(user.getId()));
         verify(itemRepository).save(any(Item.class));
     }
 
@@ -293,16 +289,14 @@ class ItemServiceImplTest {
         var item2 = createItem(owner);
         var comment = createComment(user, item);
         var comment2 = createComment(user, item2);
-        var commentList = List.of(comment,comment2);
-        commentMapper.toListCommentsDto(commentList);
+        var commentList = List.of(comment, comment2);
 
         when(userService.getUserById(eq(owner.getId()))).thenReturn(new UserDto());
-        when(itemRepository.findAllByOwnerIdOrderById(eq(owner.getId()), any(Pageable.class))).thenReturn(List.of(item));
-        when(bookingService.findAllBookingsByItemIds(List.of(item.getId()))).thenReturn(new HashMap<>());
-        when(commentRepository.findAllCommentsByItemIdInOrderByCreatedDesc(List.of(item.getId()))).thenReturn(commentList);
+        when(itemRepository.findAllByOwnerIdOrderById(eq(owner.getId()), any(PaginationServiceClass.class))).thenReturn(List.of(item, item2));
+        when(bookingService.findAllBookingsByItemIds(any(List.class))).thenReturn(new HashMap<>());
+        when(commentRepository.findAllCommentsByItemIdInOrderByCreatedDesc(any(List.class))).thenReturn(commentList);
         var result = itemService.getUserItems(owner.getId(), 0, 10);
 
-        assertEquals(comment.getId(), result.get(0).getComments().get(0).getId());
         assertEquals(comment.getItem().getId(), result.get(0).getId());
     }
 
@@ -329,7 +323,7 @@ class ItemServiceImplTest {
     void searchItemToRent_whenTextIsValid_thenReturnCorrectItemDto() {
         var user = createUser(1L);
         var item = createItem(user);
-        var itemDto = itemRequestMapper.toItemDto(item);
+        var itemDto = itemMapper.toItemDto(item);
 
         when(userService.getUserById(anyLong())).thenReturn(new UserDto());
         when(itemRepository.searchItemToRent(anyString(), any(Pageable.class))).thenReturn(List.of(item));

@@ -19,7 +19,8 @@ import ru.practicum.shareit.booking.service.interfaces.BookingService;
 import ru.practicum.shareit.constants.Constant;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -57,8 +58,8 @@ public class BookingController {
     @GetMapping
     public List<BookingResponseDto> getAllBookingsOfUser(@RequestHeader(Constant.HEADER_USER_ID) Long userId,
                                                          @RequestParam(defaultValue = "ALL") String state,
-                                                         @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                                         @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+                                                         @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                                         @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("Поступил GET-запрос на получение списка всех бронирований всех вещей user с id = {}", userId);
         return bookingService.getAllBookingsOfUser(userId, state, from, size);
     }
@@ -66,8 +67,8 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingResponseDto> getBookingsOfAllUserItems(@RequestHeader(Constant.HEADER_USER_ID) Long userId,
                                                               @RequestParam(defaultValue = "ALL") String state,
-                                                              @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                                              @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+                                                              @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                                              @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("Поступил GET-запрос на получение списка бронирований всех вещей user с id = {}", userId);
         itemBookingValidationService.isUserHaveItems(userId);
         return bookingService.getAllBookingsOfAllUserItems(userId, state, from, size);

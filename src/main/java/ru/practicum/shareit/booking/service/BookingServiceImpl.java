@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +18,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.service.interfaces.UserService;
+import ru.practicum.shareit.utils.PaginationServiceClass;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -98,7 +98,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponseDto> getAllBookingsOfUser(Long userId, String state, Integer from, Integer size) {
         var validState = State.isStateValid(state);
         userService.getUserById(userId);
-        Pageable page = PageRequest.of(from / size, size);
+        Pageable page = PaginationServiceClass.pagination(from, size);
         switch (validState) {
             case ALL:
                 var allBookings = bookingRepository.findAllBookingsByBookerIdOrderByStartDesc(userId, page);
@@ -125,7 +125,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingResponseDto> getAllBookingsOfAllUserItems(Long userId, String state, Integer from, Integer size) {
         var validState = State.isStateValid(state);
-        Pageable page = PageRequest.of(from / size, size);
+        Pageable page = PaginationServiceClass.pagination(from, size);
         switch (validState) {
             case ALL:
                 var allBookings = bookingRepository.findAllBookingsByItemOwnerIdOrderByStartDesc(userId, page);

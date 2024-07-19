@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingMapper;
@@ -21,10 +21,11 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.interfaces.ItemService;
-import ru.practicum.shareit.request.dto.ItemRequestMapper;
-import ru.practicum.shareit.request.service.interfaces.ItemRequestService;
+import ru.practicum.shareit.request.DAO.ItemRequestRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.service.interfaces.UserService;
+import ru.practicum.shareit.utils.PaginationServiceClass;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,10 +48,9 @@ public class ItemServiceImpl implements ItemService {
     private final UserMapper userMapper;
     private final CommentMapper commentMapper;
     private final BookingMapper bookingMapper;
-    private final ItemRequestMapper itemRequestMapper;
     private final UserService userService;
     private final BookingService bookingService;
-    private final ItemRequestService itemRequestService;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     @Transactional
@@ -59,8 +59,8 @@ public class ItemServiceImpl implements ItemService {
         var user = userMapper.toUser(userDto);
         var item = itemMapper.toItem(itemDto);
         if (itemDto.getRequestId() != null) {
-            var itemRequestDto = itemRequestService.getRequestById(userId, itemDto.getRequestId());
-            var itemRequest = itemRequestMapper.toItemRequest(itemRequestDto);
+            var itemRequest = itemRequestRepository.findById(itemDto.getRequestId()).orElseThrow(
+                    () -> new NotFoundException("Запрос с id = " + itemDto.getRequestId() + " отсутствует."));
             item.setItemRequest(itemRequest);
         }
         item.setOwner(user);
@@ -100,11 +100,12 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getUserItems(Long userId, Integer from, Integer size) {
         userService.getUserById(userId);
-        var allItemsDto = itemRepository.findAllByOwnerIdOrderById(userId, PageRequest.of(from / size, size))
+        Pageable page = PaginationServiceClass.pagination(from, size);
+        var allItemsDto = itemRepository.findAllByOwnerIdOrderById(userId, page)
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
-        if (allItemsDto.size() == 0) {
+        if (allItemsDto.isEmpty()) {
             return new ArrayList<>();
         }
         var itemIds = allItemsDto.stream().map(ItemDto::getId).collect(Collectors.toList());
@@ -142,16 +143,29 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> searchItemToRent(Long userId, String text, Integer from, Integer size) {
         userService.getUserById(userId);
+        Pageable page = PaginationServiceClass.pagination(from, size);
         if (text == null) {
             throw new BadRequestException("Параметр для поиска вещи пустой.");
         }
         if (text.isBlank()) {
             return Collections.emptyList();
         }
-        return itemRepository.searchItemToRent(text, PageRequest.of(from / size, size)).stream()
+        return itemRepository.searchItemToRent(text, page).stream()
                 .filter(Item::getAvailable)
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<ItemRequest, List<Item>> findAllItemsByRequestIds(List<Long> ids) {
+        var itemsFromDb = itemRepository.findAllItemsByItemRequestIdIn(ids);
+        return itemsFromDb.stream().collect(Collectors.groupingBy(Item::getItemRequest));
+    }
+
+    @Override
+    public List<ItemDto> findAllItemsByRequestId(Long requestId) {
+        var items = itemRepository.findAllItemsByItemRequestId(requestId);
+        return itemMapper.toListItemDto(items);
     }
 
     @Override
@@ -166,7 +180,7 @@ public class ItemServiceImpl implements ItemService {
             throw new BadRequestException("Данный пользователь " + userId + " является владельцем вещи с id: " + itemId);
         }
         comment.setItem(item);
-        var pastBookings = bookingService.getAllBookingsOfUser(userId, String.valueOf(State.PAST), 0, 999);
+        var pastBookings = bookingService.getAllBookingsOfUser(userId, String.valueOf(State.PAST), 0, 10);
         if (pastBookings.isEmpty()) {
             throw new BadRequestException("Пользователь c userId - " + userId + " не брал вещь в аренду c itemId -  " + itemId);
         }

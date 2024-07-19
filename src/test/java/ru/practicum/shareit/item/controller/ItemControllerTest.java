@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.service.item.controller;
+package ru.practicum.shareit.item.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jeasy.random.EasyRandom;
