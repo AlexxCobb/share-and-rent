@@ -18,9 +18,9 @@ public interface BookingService {
 
     BookingResponseDto getBookingById(Long userId, Long bookingId);
 
-    List<BookingResponseDto> getAllBookingsOfUser(Long userId, String state);
+    List<BookingResponseDto> getAllBookingsOfUser(Long userId, String state, Integer from, Integer size);
 
-    List<BookingResponseDto> getAllBookingsOfAllUserItems(Long userId, String state);
+    List<BookingResponseDto> getAllBookingsOfAllUserItems(Long userId, String state, Integer from, Integer size);
 
     Optional<ShortBookingItemDto> findLastBookingByItemId(Long itemId);
 

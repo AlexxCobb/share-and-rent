@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +18,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.service.interfaces.UserService;
+import ru.practicum.shareit.utils.PaginationServiceClass;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
 
@@ -96,58 +95,58 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getAllBookingsOfUser(Long userId, String state) {
+    public List<BookingResponseDto> getAllBookingsOfUser(Long userId, String state, Integer from, Integer size) {
         var validState = State.isStateValid(state);
         userService.getUserById(userId);
+        Pageable page = PaginationServiceClass.pagination(from, size);
         switch (validState) {
             case ALL:
-                var allBookings = bookingRepository.findAllBookingsByBookerIdOrderByStartDesc(userId);
+                var allBookings = bookingRepository.findAllBookingsByBookerIdOrderByStartDesc(userId, page);
                 return bookingMapper.toListBookingResponseDto(allBookings);
             case CURRENT:
-                var currentBookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now());
+                var currentBookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now(), page);
                 return bookingMapper.toListBookingResponseDto(currentBookings);
             case PAST:
-                var pastBookings = bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
+                var pastBookings = bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now(), page);
                 return bookingMapper.toListBookingResponseDto(pastBookings);
             case FUTURE:
-                var futureBookings = bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
+                var futureBookings = bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now(), page);
                 return bookingMapper.toListBookingResponseDto(futureBookings);
             case WAITING:
-                var waitingBookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.WAITING);
+                var waitingBookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.WAITING, page);
                 return bookingMapper.toListBookingResponseDto(waitingBookings);
             case REJECTED:
-                var rejectedBookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED);
+                var rejectedBookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED, page);
                 return bookingMapper.toListBookingResponseDto(rejectedBookings);
-            default:
-                throw new BadRequestException(String.format("Unknown state: %s", state));
         }
+        return null;
     }
 
     @Override
-    public List<BookingResponseDto> getAllBookingsOfAllUserItems(Long userId, String state) {
+    public List<BookingResponseDto> getAllBookingsOfAllUserItems(Long userId, String state, Integer from, Integer size) {
         var validState = State.isStateValid(state);
+        Pageable page = PaginationServiceClass.pagination(from, size);
         switch (validState) {
             case ALL:
-                var allBookings = bookingRepository.findAllBookingsByItemOwnerIdOrderByStartDesc(userId);
+                var allBookings = bookingRepository.findAllBookingsByItemOwnerIdOrderByStartDesc(userId, page);
                 return bookingMapper.toListBookingResponseDto(allBookings);
             case CURRENT:
-                var currentBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now());
+                var currentBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now(), page);
                 return bookingMapper.toListBookingResponseDto(currentBookings);
             case PAST:
-                var pastBookings = bookingRepository.findAllBookingsByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
+                var pastBookings = bookingRepository.findAllBookingsByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now(), page);
                 return bookingMapper.toListBookingResponseDto(pastBookings);
             case FUTURE:
-                var futureBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
+                var futureBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now(), page);
                 return bookingMapper.toListBookingResponseDto(futureBookings);
             case WAITING:
-                var waitingBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.WAITING);
+                var waitingBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.WAITING, page);
                 return bookingMapper.toListBookingResponseDto(waitingBookings);
             case REJECTED:
-                var rejectedBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.REJECTED);
+                var rejectedBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.REJECTED, page);
                 return bookingMapper.toListBookingResponseDto(rejectedBookings);
-            default:
-                throw new BadRequestException(String.format("Unknown state: %s", state));
         }
+        return null;
     }
 
     @Override
