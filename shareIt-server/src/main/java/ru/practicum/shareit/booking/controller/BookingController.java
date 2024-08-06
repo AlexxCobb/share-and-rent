@@ -31,7 +31,7 @@ public class BookingController {
     public BookingResponseDto createBooking(@RequestBody BookingRequestDto bookingDto,
                                             @RequestHeader(Constant.HEADER_USER_ID) Long userId) {
         log.info("Поступил POST-запрос на добавление бронирования от user с id = {}", userId);
-        var item = itemBookingValidationService.isItemAvailable(bookingDto.getItemId());
+        var item = itemBookingValidationService.isItemAvailable(bookingDto.getItemId(), userId);
         return bookingService.createBookingByUser(bookingDto, userId, item);
     }
 

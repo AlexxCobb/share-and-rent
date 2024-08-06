@@ -24,7 +24,8 @@ public class ItemBookingValidationService {
         }
     }
 
-    public Item isItemAvailable(Long itemId) {
+    public Item isItemAvailable(Long itemId, Long userId) {
+        userService.getUserById(userId);
         var item = itemRepository.findById(itemId).orElseThrow(
                 () -> new NotFoundException("Вещь с таким id: " + itemId + ", отсутствует."));
         if (!item.getAvailable()) {

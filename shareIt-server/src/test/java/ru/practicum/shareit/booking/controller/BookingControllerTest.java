@@ -57,7 +57,7 @@ public class BookingControllerTest {
         bookingRequestDto.setEnd(LocalDateTime.now().plusMinutes(50));
         var bookingResponseDto = generator.nextObject(BookingResponseDto.class);
 
-        when(validationService.isItemAvailable(bookingRequestDto.getItemId())).thenReturn(new Item());
+        when(validationService.isItemAvailable(anyLong(),anyLong())).thenReturn(new Item());
         when(bookingService.createBookingByUser(any(BookingRequestDto.class), anyLong(), any(Item.class))).thenReturn(bookingResponseDto);
 
 

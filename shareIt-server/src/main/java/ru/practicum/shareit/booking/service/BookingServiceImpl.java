@@ -66,7 +66,7 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Бронирование с таким id: " + bookingId + ", отсутствует.");
         });
         if (!booking.getItem().getOwner().getId().equals(userId)) {
-            throw new NotFoundException("Указанный пользователь c userId = " + userId +
+            throw new BadRequestException("Указанный пользователь c userId = " + userId +
                     " не является владельцем вещи c itemId = " + booking.getItem().getId());
         }
         if (!booking.getStatus().equals(Status.WAITING)) {

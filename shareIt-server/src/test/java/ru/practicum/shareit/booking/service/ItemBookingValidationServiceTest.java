@@ -45,9 +45,11 @@ class ItemBookingValidationServiceTest {
     @Test
     void isUserHaveItems() {
         var user = new UserDto();
+
         when(userService.getUserById(any())).thenReturn(user);
         when(itemService.isUserHaveItems(any())).thenReturn(true);
         service.isUserHaveItems(any());
+
         verify(itemService).isUserHaveItems(any());
     }
 
@@ -56,13 +58,18 @@ class ItemBookingValidationServiceTest {
         var item = new Item();
         item.setId(1L);
         item.setAvailable(false);
+        var user = new UserDto();
+        user.setId(2L);
+
+        when(userService.getUserById(2L)).thenReturn(user);
         when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
-        assertThrows(BadRequestException.class, () -> service.isItemAvailable(1L));
+
+        assertThrows(BadRequestException.class, () -> service.isItemAvailable(1L, 2L));
     }
 
     @Test
     void isItemAvailableWithNotFoundException() {
-        assertThrows(NotFoundException.class, () -> service.isItemAvailable(any()));
+        assertThrows(NotFoundException.class, () -> service.isItemAvailable(1L, 2L));
     }
 
     @Test
@@ -70,8 +77,13 @@ class ItemBookingValidationServiceTest {
         var item = new Item();
         item.setId(1L);
         item.setAvailable(true);
+        var user = new UserDto();
+        user.setId(2L);
+
+        when(userService.getUserById(2L)).thenReturn(user);
         when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
-        var result = service.isItemAvailable(item.getId());
+
+        var result = service.isItemAvailable(item.getId(), user.getId());
         assertEquals(item, result);
     }
 }
