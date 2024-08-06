@@ -101,24 +101,30 @@ public class BookingServiceImpl implements BookingService {
         userService.getUserById(userId);
         Pageable page = PaginationServiceClass.pagination(from, size);
         switch (validState) {
-            case ALL:
+            case ALL -> {
                 var allBookings = bookingRepository.findAllBookingsByBookerIdOrderByStartDesc(userId, page);
                 return bookingMapper.toListBookingResponseDto(allBookings);
-            case CURRENT:
+            }
+            case CURRENT -> {
                 var currentBookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now(), page);
                 return bookingMapper.toListBookingResponseDto(currentBookings);
-            case PAST:
+            }
+            case PAST -> {
                 var pastBookings = bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now(), page);
                 return bookingMapper.toListBookingResponseDto(pastBookings);
-            case FUTURE:
+            }
+            case FUTURE -> {
                 var futureBookings = bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now(), page);
                 return bookingMapper.toListBookingResponseDto(futureBookings);
-            case WAITING:
+            }
+            case WAITING -> {
                 var waitingBookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.WAITING, page);
                 return bookingMapper.toListBookingResponseDto(waitingBookings);
-            case REJECTED:
+            }
+            case REJECTED -> {
                 var rejectedBookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED, page);
                 return bookingMapper.toListBookingResponseDto(rejectedBookings);
+            }
         }
         return null;
     }
@@ -128,24 +134,30 @@ public class BookingServiceImpl implements BookingService {
         var validState = State.isStateValid(state);
         Pageable page = PaginationServiceClass.pagination(from, size);
         switch (validState) {
-            case ALL:
+            case ALL -> {
                 var allBookings = bookingRepository.findAllBookingsByItemOwnerIdOrderByStartDesc(userId, page);
                 return bookingMapper.toListBookingResponseDto(allBookings);
-            case CURRENT:
+            }
+            case CURRENT -> {
                 var currentBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now(), page);
                 return bookingMapper.toListBookingResponseDto(currentBookings);
-            case PAST:
+            }
+            case PAST -> {
                 var pastBookings = bookingRepository.findAllBookingsByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now(), page);
                 return bookingMapper.toListBookingResponseDto(pastBookings);
-            case FUTURE:
+            }
+            case FUTURE -> {
                 var futureBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now(), page);
                 return bookingMapper.toListBookingResponseDto(futureBookings);
-            case WAITING:
+            }
+            case WAITING -> {
                 var waitingBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.WAITING, page);
                 return bookingMapper.toListBookingResponseDto(waitingBookings);
-            case REJECTED:
+            }
+            case REJECTED -> {
                 var rejectedBookings = bookingRepository.findAllBookingsByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.REJECTED, page);
                 return bookingMapper.toListBookingResponseDto(rejectedBookings);
+            }
         }
         return null;
     }
