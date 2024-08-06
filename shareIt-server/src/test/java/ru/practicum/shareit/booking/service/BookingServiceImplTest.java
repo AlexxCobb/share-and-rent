@@ -117,10 +117,10 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void managingBookingStatus_whenUserNotOwner_thenThrowNotFoundException() {
+    void managingBookingStatus_whenUserNotOwner_thenThrowBadRequestException() {
         when(bookingRepository.findById(any())).thenReturn(Optional.of(booking));
 
-        Throwable e = assertThrows(NotFoundException.class, () ->
+        Throwable e = assertThrows(BadRequestException.class, () ->
                 bookingService.managingBookingStatus(booking.getId(), booker.getId(), true));
         assertEquals("Указанный пользователь c userId = " + booker.getId() +
                 " не является владельцем вещи c itemId = " + booking.getItem().getId(), e.getMessage());
