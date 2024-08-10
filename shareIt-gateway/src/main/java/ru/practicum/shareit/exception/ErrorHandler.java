@@ -17,9 +17,9 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(value = {BadRequestException.class, MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public final ErrorResponse handleInvalidParamExc(final BadRequestException e) {
+    public final ErrorResponse handleInvalidParamExc(final RuntimeException e) {
         log.error("Получен статус 400 Bad Request {}", e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }
@@ -29,13 +29,6 @@ public class ErrorHandler {
     public final ErrorResponse handleUnexpectedException(final Throwable e) {
         log.error("Получен статус 500 Internal Server Error {}", e.getMessage(), e);
         return new ErrorResponse("Произошла непредвиденная ошибка.");
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public final ErrorResponse handleUnexpectedException(final MethodArgumentNotValidException e) {
-        log.error("Получен статус 400 Bad Request {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
     }
 
     private static class ErrorResponse {

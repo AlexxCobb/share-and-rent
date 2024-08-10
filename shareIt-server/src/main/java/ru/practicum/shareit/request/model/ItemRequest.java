@@ -44,8 +44,6 @@ public class ItemRequest {
     @Column(name = "created_date")
     private LocalDateTime created;
 
-    //    @ToString.Exclude
-//    @OneToMany(mappedBy = "itemRequest", fetch = FetchType.LAZY)
     @Transient
     private List<Item> items;
 }

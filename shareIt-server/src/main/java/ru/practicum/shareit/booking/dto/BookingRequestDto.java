@@ -8,9 +8,6 @@ import lombok.Setter;
 import lombok.ToString;
 import ru.practicum.shareit.constants.Constant;
 
-import javax.validation.constraints.Future;
-import javax.validation.constraints.FutureOrPresent;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
@@ -19,14 +16,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingRequestDto {
-    @NotNull
     private Long itemId;
-    @NotNull
-    @FutureOrPresent
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_PATTERN)
     private LocalDateTime start;
-    @NotNull
-    @Future
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_PATTERN)
     private LocalDateTime end;
 }
